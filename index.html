@@ -1,8 +1,283 @@
 <!DOCTYPE html>
-<html>
-<head><title>IV to Oral Switch Dashboard</title></head>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IV to Oral Switch Dashboard</title>
+<style>
+  /* ---------- Design tokens ---------- */
+  :root {
+    --ink: #16302b;          /* near-black green, main text */
+    --paper: #f6f4ee;        /* warm off-white background */
+    --panel: #ffffff;        /* card background */
+    --line: #d8d3c4;         /* hairline borders */
+    --teal: #2c6e63;         /* primary accent - clinical teal */
+    --teal-dark: #1d4a42;
+    --amber: #c98a3b;        /* secondary accent - warm amber, for savings figures */
+    --muted: #6b6a63;        /* secondary text */
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 24px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    margin: 0 0 32px;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- STEP 1: a basic box ----------
+     This is the simplest possible "card" - just a div with
+     padding, a border, and rounded corners. Everything else
+     on this page is a variation of this same idea. */
+  .basic-box {
+    max-width: 480px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+
+  .basic-box h2 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+  }
+
+  .basic-box p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* ---------- STEP 2: the calculator ---------- */
+  .calculator {
+    max-width: 620px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 28px 28px;
+  }
+
+  .calculator h2 {
+    margin: 0 0 4px;
+    font-size: 1.15rem;
+  }
+
+  .calculator .hint {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--teal-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+  }
+
+  select, input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  select:focus, input:focus {
+    outline: 2px solid var(--teal);
+    outline-offset: 1px;
+  }
+
+  button.add-btn {
+    background: var(--teal);
+    color: white;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  button.add-btn:hover { background: var(--teal-dark); }
+
+  /* Running totals */
+  .totals {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .totals .stat {
+    text-align: left;
+  }
+
+  .totals .stat .value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  .totals .stat .label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* Log of added entries */
+  .log {
+    margin-top: 20px;
+    font-size: 0.85rem;
+  }
+
+  .log-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+    color: var(--muted);
+  }
+
+  .log-entry:last-child { border-bottom: none; }
+</style>
+</head>
 <body>
+
   <h1>IV to Oral Switch Dashboard</h1>
-  <p>Coming soon: cost, CO2, and plastic savings calculators.</p>
+  <p class="subtitle">Cost, CO&sub2; and plastic waste savings from IV&nbsp;&rarr;&nbsp;oral medication switches</p>
+
+  <!-- STEP 1: BASIC BOX -->
+  <div class="basic-box">
+    <h2>This is a basic box</h2>
+    <p>It's just an HTML &lt;div&gt; with a border, rounded corners and some padding, styled by CSS. Every card on this page &mdash; including the calculator below &mdash; is built from this same idea.</p>
+  </div>
+
+  <!-- STEP 2: CALCULATOR -->
+  <div class="calculator">
+    <h2>Switch calculator</h2>
+    <p class="hint">Select a medication, enter the number of patients switched, and add it to the running total below.</p>
+
+    <div class="field">
+      <label for="medication">Medication</label>
+      <select id="medication">
+        <!-- value = index into the medicationData array below -->
+        <option value="0">Amoxicillin (1g IV &rarr; 500mg oral)</option>
+        <option value="1">Ciprofloxacin (400mg IV &rarr; 500mg oral)</option>
+        <option value="2">Metronidazole (500mg IV &rarr; 400mg oral)</option>
+        <option value="3">Paracetamol (1g IV &rarr; 1g oral)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="patients">Number of patients</label>
+      <input type="number" id="patients" min="1" value="1">
+    </div>
+
+    <button class="add-btn" onclick="addSwitch()">Add to dashboard</button>
+
+    <div class="totals">
+      <div class="stat">
+        <div class="value" id="totalCost">$0</div>
+        <div class="label">Cost saved</div>
+      </div>
+      <div class="stat">
+        <div class="value" id="totalCO2">0 kg</div>
+        <div class="label">CO&sub2; saved</div>
+      </div>
+      <div class="stat">
+        <div class="value" id="totalPlastic">0 g</div>
+        <div class="label">Plastic saved</div>
+      </div>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+<script>
+  // ---- PLACEHOLDER reference data ----
+  // These are illustrative figures only, not verified clinical/cost data.
+  // Replace with your real per-dose figures once available:
+  // costSaved  = IV cost - oral cost, per dose ($)
+  // co2Saved   = CO2 avoided per dose (kg), from manufacturing/transport/disposal of the IV form
+  // plasticSaved = plastic avoided per dose (g), from bag/vial/tubing/syringe not used
+  const medicationData = [
+    { name: "Amoxicillin",    costSaved: 4.20, co2Saved: 0.18, plasticSaved: 12 },
+    { name: "Ciprofloxacin",  costSaved: 6.80, co2Saved: 0.22, plasticSaved: 15 },
+    { name: "Metronidazole",  costSaved: 3.50, co2Saved: 0.16, plasticSaved: 10 },
+    { name: "Paracetamol",    costSaved: 2.10, co2Saved: 0.14, plasticSaved: 9  },
+  ];
+
+  // Running totals, kept in memory (resets on page reload)
+  let totals = { cost: 0, co2: 0, plastic: 0 };
+
+  function addSwitch() {
+    const select = document.getElementById("medication");
+    const patientsInput = document.getElementById("patients");
+
+    const med = medicationData[select.value];
+    const patients = parseInt(patientsInput.value, 10);
+
+    if (!patients || patients < 1) {
+      alert("Enter a number of patients (1 or more).");
+      return;
+    }
+
+    // Multiply the per-dose figures by number of patients
+    const cost = med.costSaved * patients;
+    const co2 = med.co2Saved * patients;
+    const plastic = med.plasticSaved * patients;
+
+    totals.cost += cost;
+    totals.co2 += co2;
+    totals.plastic += plastic;
+
+    // Update the displayed totals
+    document.getElementById("totalCost").textContent = "$" + totals.cost.toFixed(2);
+    document.getElementById("totalCO2").textContent = totals.co2.toFixed(2) + " kg";
+    document.getElementById("totalPlastic").textContent = totals.plastic.toFixed(0) + " g";
+
+    // Add a line to the log
+    const log = document.getElementById("log");
+    const entry = document.createElement("div");
+    entry.className = "log-entry";
+    entry.innerHTML = `<span>${med.name} &times; ${patients} patient${patients > 1 ? "s" : ""}</span>
+                        <span>$${cost.toFixed(2)} &middot; ${co2.toFixed(2)}kg &middot; ${plastic.toFixed(0)}g</span>`;
+    log.prepend(entry);
+  }
+</script>
+
 </body>
 </html>
